@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis/redis-stack-server:latest
+    container_name: canonical-cache-redis
+    ports:
+      - "6379:6379"
+      - "8001:8001"  # RedisInsight web UI
+    environment:
+      - REDIS_ARGS=--requirepass canonical_cache_redis_2024 --save 900 1 --save 300 10 --save 60 10000
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "canonical_cache_redis_2024", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  redis_data:
+    driver: local
